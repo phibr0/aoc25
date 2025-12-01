@@ -1,0 +1,65 @@
+#!/bin/zsh
+
+if [ -z "$1" ]; then
+    echo "Usage: $0 <day_number> [input|test]"
+    exit 1
+fi
+
+DAY_NUM=$1
+DIR_NAME="day${DAY_NUM}"
+INPUT_TYPE=${2:-test}
+
+UTILS_ML='let measure f input =
+  let start = Sys.time () in
+  let res = f input in
+  let stop = Sys.time () in
+  (res, stop -. start)
+
+let fmt_time t =
+  if t < 0.000001 then Printf.sprintf "%.0fns" (t *. 1e9)
+  else if t < 0.001 then Printf.sprintf "%.2fµs" (t *. 1e6)
+  else if t < 1.0 then Printf.sprintf "%.2fms" (t *. 1e3)
+  else Printf.sprintf "%.2fs" t
+
+let color_green_bold = "\x1b[1;32m"
+let color_dim = "\x1b[2m"
+let color_reset = "\x1b[0m"
+
+let () =
+  let input = In_channel.input_all stdin in
+  let (r1, t1) = measure part1 (String.trim input) in
+  Printf.printf "Part 1: %s%d%s %s(%s)%s\n" color_green_bold r1 color_reset color_dim (fmt_time t1) color_reset;
+  let (r2, t2) = measure part2 (String.trim input) in
+  Printf.printf "Part 2: %s%d%s %s(%s)%s\n" color_green_bold r2 color_reset color_dim (fmt_time t2) color_reset'
+
+if [ -d "$DIR_NAME" ]; then
+    INPUT_FILE="${DIR_NAME}/${INPUT_TYPE}.txt"
+    if [ ! -f "$INPUT_FILE" ]; then
+        echo "Error: Input file not found: $INPUT_FILE"
+        exit 1
+    fi
+
+    if [ "$INPUT_TYPE" = "input" ]; then
+        TYPE_DESC="input data"
+    else
+        TYPE_DESC="${INPUT_TYPE} data"
+    fi
+    echo "Solving Day ${DAY_NUM} with ${TYPE_DESC}..."
+
+    ocamlformat --inplace --enable-outside-detected-project "${DIR_NAME}/solution.ml"
+    cat "$INPUT_FILE" | ocaml <(cat "${DIR_NAME}/solution.ml"; echo "$UTILS_ML")
+else
+    echo "Directory ${DIR_NAME} not found. Creating it..."
+    mkdir "$DIR_NAME"
+
+    cat > "${DIR_NAME}/solution.ml" << 'EOF'
+let part1 input =
+  0
+
+let part2 input =
+  0
+EOF
+    touch "${DIR_NAME}/input.txt" "${DIR_NAME}/test.txt"
+    echo "Created ${DIR_NAME} structure."
+    zed-preview "${DIR_NAME}/solution.ml"
+fi
