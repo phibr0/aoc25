@@ -28,7 +28,7 @@ let color_reset = "\x1b[0m"
 let () =
   let input = In_channel.input_all stdin in
   let (r1, t1) = measure part1 (String.trim input) in
-  Printf.printf "Part 1: %s%d%s %s(%s)%s\n" color_green_bold r1 color_reset color_dim (fmt_time t1) color_reset;
+  Printf.printf "Part 1: %s%d%s %s(%s)%s\n%!" color_green_bold r1 color_reset color_dim (fmt_time t1) color_reset;
   let (r2, t2) = measure part2 (String.trim input) in
   Printf.printf "Part 2: %s%d%s %s(%s)%s\n" color_green_bold r2 color_reset color_dim (fmt_time t2) color_reset'
 
