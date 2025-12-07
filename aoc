@@ -47,7 +47,19 @@ if [ -d "$DIR_NAME" ]; then
     echo "Solving Day ${DAY_NUM} with ${TYPE_DESC}..."
 
     ocamlformat --inplace --enable-outside-detected-project "${DIR_NAME}/solution.ml"
-    cat "$INPUT_FILE" | ocaml <(cat "${DIR_NAME}/solution.ml"; echo "$UTILS_ML")
+
+    TEMP_ML=$(mktemp /tmp/aoc_day${DAY_NUM}_XXXXXX.ml)
+    TEMP_BIN=$(mktemp /tmp/aoc_day${DAY_NUM}_XXXXXX)
+
+    cleanup() {
+        rm -f "$TEMP_ML" "$TEMP_BIN" "${TEMP_ML%.ml}.cmi" "${TEMP_ML%.ml}.cmx" "${TEMP_ML%.ml}.o"
+    }
+    trap cleanup EXIT INT TERM
+
+    cat "${DIR_NAME}/solution.ml" > "$TEMP_ML"
+    echo "$UTILS_ML" >> "$TEMP_ML"
+
+    ocamlopt -unsafe -nodynlink -ccopt -march=native -O3 -o "$TEMP_BIN" "$TEMP_ML" && cat "$INPUT_FILE" | "$TEMP_BIN"
 else
     echo "Directory ${DIR_NAME} not found. Creating it..."
     mkdir "$DIR_NAME"
