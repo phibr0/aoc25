@@ -59,7 +59,7 @@ if [ -d "$DIR_NAME" ]; then
     cat "${DIR_NAME}/solution.ml" > "$TEMP_ML"
     echo "$UTILS_ML" >> "$TEMP_ML"
 
-    ocamlopt -unsafe -nodynlink -ccopt -march=native -O3 -o "$TEMP_BIN" "$TEMP_ML" && cat "$INPUT_FILE" | "$TEMP_BIN"
+    ocamlopt -I +str str.cmxa -unsafe -nodynlink -ccopt -march=native -O3 -o "$TEMP_BIN" "$TEMP_ML" && cat "$INPUT_FILE" | "$TEMP_BIN"
 else
     echo "Directory ${DIR_NAME} not found. Creating it..."
     mkdir "$DIR_NAME"
